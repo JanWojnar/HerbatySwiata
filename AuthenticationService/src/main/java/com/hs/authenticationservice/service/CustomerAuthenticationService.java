@@ -12,11 +12,9 @@ public class CustomerAuthenticationService {
     private final KeycloakUserService kcUserService;
 
     public void registerCustomer(RegisterInfoTo registerInfoTo) {
-        boolean userKcRegistered = kcUserService.registerNewUser(registerInfoTo);
+        kcUserService.registerNewUser(registerInfoTo);
         //TODO backendUser registration
-        if(userKcRegistered){
-            kcUserService.sendVerificationEmail(registerInfoTo.getEmail());
-        }
+        kcUserService.sendVerificationEmail(registerInfoTo.getEmail());
     }
 
     public void deleteCustomer(DeleteInfoTo deleteInfoTo) {
