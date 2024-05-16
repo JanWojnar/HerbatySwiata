@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -24,7 +25,6 @@ public class KeycloakUserService {
 
     private static final String USER_NOT_CREATED = "New user won't be created!";
     private static final String USER_NOT_DELETED = "User cannot be deleted!";
-
     private static final String USER_NOT_FOUND = "User not found!";
 
     private final KeycloakProperties kcProps;
@@ -60,7 +60,7 @@ public class KeycloakUserService {
             }
         } else
             throw new BusinessException(HttpStatus.NOT_FOUND, ErrorStatus.builder()
-                    .errorMessage(USER_NOT_FOUND)
+                    .errorMessages(Set.of(USER_NOT_FOUND))
                     .consequences(USER_NOT_DELETED)
                     .build());
     }
@@ -74,7 +74,7 @@ public class KeycloakUserService {
         throw new KeycloakResponseStatusException(
                 HttpStatus.valueOf(response.getStatus()),
                 ErrorStatus.builder()
-                        .errorMessage(errorMessage.getErrorMessage())
+                        .errorMessages(Set.of(errorMessage.getErrorMessage()))
                         .consequences(consequences)
                         .build());
     }

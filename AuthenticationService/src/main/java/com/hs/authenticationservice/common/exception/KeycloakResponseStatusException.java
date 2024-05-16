@@ -12,7 +12,7 @@ public class KeycloakResponseStatusException extends ResponseStatusException {
 
     public KeycloakResponseStatusException(HttpStatusCode status,
                                            ErrorStatus errorStatus) {
-        super(status, errorStatus.getErrorMessage());
+        super(status, errorStatus.getErrorMessages().toString());
         this.errorStatus = errorStatus;
     }
 }
