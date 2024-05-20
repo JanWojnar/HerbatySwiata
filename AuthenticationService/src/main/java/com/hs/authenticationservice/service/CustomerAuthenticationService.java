@@ -22,6 +22,7 @@ public class CustomerAuthenticationService {
     }
 
     public void deleteCustomer(DeleteInfoTo deleteInfoTo) {
+        requestValidator.validateDeleteInput(deleteInfoTo);
         //TODO backendUser deletion
         kcUserService.deleteUser(deleteInfoTo);
     }
