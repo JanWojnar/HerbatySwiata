@@ -1,4 +1,4 @@
-package com.hs.authenticationservice.service.to;
+package com.hs.authenticationservice.service.to.input;
 
 import lombok.Data;
 
