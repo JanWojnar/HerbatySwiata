@@ -12,31 +12,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("rest/auth/")
+@RequestMapping("rest/auth/customer")
 @AllArgsConstructor
 public class CustomerAuthenticationController {
 
     private final CustomerAuthenticationService customerAuthenticationService;
 
-    @GetMapping("/customer/login")
+    @GetMapping("/login")
     public ResponseEntity<Object> loginCustomer(@RequestBody LoginTo loginTo) {
         LoginResponseTo response = this.customerAuthenticationService.loginCustomer(loginTo);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/customer/logout")
+    @GetMapping("/logout")
     public ResponseEntity<Object> logoutCustomer(@RequestBody LogoutTo logoutTo) {
         this.customerAuthenticationService.logoutCustomer(logoutTo);
         return ResponseEntity.ok("Logged out");
     }
 
-    @PostMapping(value = "/customer/register")
+    @PostMapping(value = "/register")
     public ResponseEntity<Object> registerCustomer(@RequestBody RegisterInfoTo registerInfoTo) {
         this.customerAuthenticationService.registerCustomer(registerInfoTo);
         return ResponseEntity.status(HttpStatus.CREATED).body("Registered, Email sent to user");
     }
 
-    @DeleteMapping(value = "/customer/delete")
+    @DeleteMapping(value = "/delete")
     public ResponseEntity<Object> deleteCustomer(@RequestBody DeleteInfoTo deleteInfoTo) {
         this.customerAuthenticationService.deleteCustomer(deleteInfoTo);
         return ResponseEntity.ok("User deleted");

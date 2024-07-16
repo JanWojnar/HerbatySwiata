@@ -1,23 +1,25 @@
 package com.hs.authenticationservice.service;
 
 import com.hs.authenticationservice.common.helper.RequestValidator;
+import com.hs.authenticationservice.service.impl.KeycloakUserService;
 import com.hs.authenticationservice.service.to.input.DeleteInfoTo;
 import com.hs.authenticationservice.service.to.input.LoginTo;
 import com.hs.authenticationservice.service.to.input.LogoutTo;
 import com.hs.authenticationservice.service.to.input.RegisterInfoTo;
 import com.hs.authenticationservice.service.to.output.LoginResponseTo;
 import com.hs.authenticationservice.service.to.output.LogoutResponseTo;
-import lombok.AllArgsConstructor;
 import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
-public class CustomerAuthenticationService {
-
-    private final KeycloakUserService kcUserService;
+public class CustomerAuthenticationService extends UserAuthenticationService {
 
     private final RequestValidator requestValidator;
+
+    CustomerAuthenticationService(KeycloakUserService keycloakUserService, RequestValidator requestValidator) {
+        super(keycloakUserService);
+        this.requestValidator = requestValidator;
+    }
 
     public LoginResponseTo loginCustomer(LoginTo loginTo) {
         AccessTokenResponse accessTokenResponse = this.kcUserService.login(loginTo);
