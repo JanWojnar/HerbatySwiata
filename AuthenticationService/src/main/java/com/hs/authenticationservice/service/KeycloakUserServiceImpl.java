@@ -8,6 +8,7 @@ import com.hs.authenticationservice.common.properties.KeycloakProperties;
 import com.hs.authenticationservice.service.impl.KeycloakUserService;
 import com.hs.authenticationservice.service.to.input.*;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.ws.rs.NotFoundException;
@@ -35,10 +36,13 @@ public class KeycloakUserServiceImpl implements KeycloakUserService {
     private static final String USER_NOT_LOGGED_IN = "User wasn't logged in!";
     private static final String USER_NOT_LOGGED_OUT = "User wasn't logged out!";
     private static final String CERTS_NOT_AVAILABLE = "Certificates are not available!";
+    private static final String USER_TOKEN_EXPIRED = "User token expired!";
 
     private static final String TOKEN_NOT_REFRESHED = "Token could not been refreshed";
     private static final String USER_LOGGED_OUT = "User was logged out.";
     private static final String AUTH_ACTIONS_NOT_POSSIBLE = "Auth actions not possible!";
+
+    private static final String USER_DELETED_BY_OTHER_USER = "Attempt to delete other user!";
 
     private final KeycloakProperties kcProps;
 
@@ -54,6 +58,12 @@ public class KeycloakUserServiceImpl implements KeycloakUserService {
 
     @Override
     public AccessTokenResponse login(LoginTo login) {
+        if (this.getFoundUsers(login.getLogin()).isEmpty()) {
+            throw new KeycloakResponseStatusException(HttpStatus.UNAUTHORIZED, ErrorStatus.builder()
+                    .errorMessages(Set.of(USER_NOT_FOUND))
+                    .consequences(USER_NOT_LOGGED_IN)
+                    .build());
+        }
         Keycloak kc = KeycloakBuilder.builder()
                 .serverUrl(kcProps.getServerUrl())
                 .realm(kcProps.getTargetRealm())
@@ -72,11 +82,13 @@ public class KeycloakUserServiceImpl implements KeycloakUserService {
     @Override
     public void logout(LogoutTo logoutTo) {
         Claims claims = parseToken(logoutTo.getAccessToken());
+        String claimedEmail = claims.get("email", String.class);
         Keycloak userKeycloak = this.loggedInUsers.get(claims.get("email", String.class));
         if (userKeycloak == null) {
             endUserSessionManually(claims);
         } else {
             userKeycloak.tokenManager().logout();
+            this.loggedInUsers.remove(claimedEmail);
         }
     }
 
@@ -100,6 +112,13 @@ public class KeycloakUserServiceImpl implements KeycloakUserService {
 
     @Override
     public void deleteUser(DeleteInfoTo deleteInfoTo) {
+        Claims claims = parseToken(deleteInfoTo.getToken());
+        String claimedEmail = claims.get("email", String.class);
+        if (!Objects.equals(claimedEmail, deleteInfoTo.getEmail())) {
+            throw new BusinessException(HttpStatus.UNAUTHORIZED, ErrorStatus.builder()
+                    .errorMessages(Set.of(USER_DELETED_BY_OTHER_USER))
+                    .consequences(USER_NOT_DELETED).build());
+        }
         List<UserRepresentation> foundUsers = getFoundUsers(deleteInfoTo.getEmail());
         if (!foundUsers.isEmpty()) {
             UserRepresentation user = foundUsers.getFirst();
@@ -177,6 +196,8 @@ public class KeycloakUserServiceImpl implements KeycloakUserService {
                         .errorMessages(Collections.singleton(e.getMessage()))
                         .consequences(AUTH_ACTIONS_NOT_POSSIBLE)
                         .build());
+            } catch (ExpiredJwtException e) {
+                endUserSessionManually(e.getClaims());
             } catch (SignatureException e) {
                 signatureException = e;
             }
@@ -216,7 +237,7 @@ public class KeycloakUserServiceImpl implements KeycloakUserService {
                     String.class));
         } catch (NotFoundException e) {
             throw new KeycloakResponseStatusException(HttpStatus.NOT_FOUND,
-                    ErrorStatus.builder().errorMessages(Set.of(USER_NOT_LOGGED_IN)).consequences(USER_NOT_LOGGED_OUT).build());
+                    ErrorStatus.builder().errorMessages(Set.of(USER_TOKEN_EXPIRED)).consequences(USER_LOGGED_OUT).build());
         }
     }
 }

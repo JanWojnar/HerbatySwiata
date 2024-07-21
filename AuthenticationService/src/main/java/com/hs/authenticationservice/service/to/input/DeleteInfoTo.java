@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class DeleteInfoTo {
     private String email;
+    private String token;
 }
