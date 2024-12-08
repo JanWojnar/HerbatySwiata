@@ -1,9 +1,8 @@
-package com.hs.authenticationservice.service.restcontroller;
+package com.hs.authenticationservice.controller;
 
 import com.hs.authenticationservice.service.CustomerAuthenticationService;
 import com.hs.authenticationservice.service.to.input.DeleteInfoTo;
 import com.hs.authenticationservice.service.to.input.LoginTo;
-import com.hs.authenticationservice.service.to.input.LogoutTo;
 import com.hs.authenticationservice.service.to.input.RegisterInfoTo;
 import com.hs.authenticationservice.service.to.output.LoginResponseTo;
 import lombok.AllArgsConstructor;
@@ -12,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("rest/auth/customer")
+@RequestMapping("/auth/customer")
 @AllArgsConstructor
 public class CustomerAuthenticationController {
 
@@ -24,10 +23,16 @@ public class CustomerAuthenticationController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/logout")
-    public ResponseEntity<Object> logoutCustomer(@RequestBody LogoutTo logoutTo) {
-        this.customerAuthenticationService.logoutCustomer(logoutTo);
-        return ResponseEntity.ok("Logged out");
+    @GetMapping("/endCustomerSession")
+    public ResponseEntity<Object> endSession() {
+        this.customerAuthenticationService.endCustomerSession();
+        return ResponseEntity.ok("Ended session");
+    }
+
+    @GetMapping("/endAllCustomerSessions")
+    public ResponseEntity<Object> endSessions() {
+        this.customerAuthenticationService.endAllCustomerSessions();
+        return ResponseEntity.ok("Ended sessions");
     }
 
     @PostMapping(value = "/register")

@@ -1,8 +1,0 @@
-package com.hs.authenticationservice.service.to.input;
-
-import lombok.Data;
-
-@Data
-public class RefreshTokenTo {
-    String token;
-}

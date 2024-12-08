@@ -1,4 +1,4 @@
-package com.hs.authenticationservice.service.restcontroller.handler;
+package com.hs.authenticationservice.controller.handler;
 
 import com.hs.authenticationservice.common.exception.BusinessException;
 import com.hs.authenticationservice.common.helper.JsonPrettifier;

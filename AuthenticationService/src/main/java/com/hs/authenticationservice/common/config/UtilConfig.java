@@ -20,5 +20,4 @@ public class UtilConfig {
     public JsonPrettifier jsonPrettifier(ObjectMapper objectMapper) {
         return new JsonPrettifier(objectMapper);
     }
-
 }
